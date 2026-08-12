@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>도서 목록</title>
+
+  <style>
+    table {
+      width: 100%;
+      max-width: 800px;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      border: 1px solid #cccccc;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    tbody tr:hover {
+      background-color: #f8f8f8;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>도서 목록</h1>
+  <button id="loadBtn">목록 불러오기</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>번호</th>
+        <th>제목</th>
+        <th>저자</th>
+        <th>출판 연도</th>
+      </tr>
+    </thead>
+
+    <tbody id="result">
+      <!-- 도서 목록이 여기에 추가됩니다. -->
+    </tbody>
+  </table>
+
+  <script>
+    document
+      .getElementById("loadBtn")
+      .addEventListener("click", async () => {
+        const books = await (await fetch("/books")).json();
+        const tbody = document.getElementById("result");
+
+        tbody.innerHTML = "";
+
+        for (const book of books) {
+          const row = document.createElement("tr");
+
+          const idCell = document.createElement("td");
+          idCell.textContent = book.id;
+
+          const titleCell = document.createElement("td");
+          titleCell.textContent = book.title;
+
+          const authorCell = document.createElement("td");
+          authorCell.textContent = book.author;
+
+          const yearCell = document.createElement("td");
+          yearCell.textContent = book.year;
+
+          row.appendChild(idCell);
+          row.appendChild(titleCell);
+          row.appendChild(authorCell);
+          row.appendChild(yearCell);
+
+          tbody.appendChild(row);
+        }
+      });
+  </script>
+</body>
+</html>

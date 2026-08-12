@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>도서 검색</title>
+
+  <style>
+    body {
+      max-width: 900px;
+      margin: 40px auto;
+      font-family: sans-serif;
+    }
+
+    .search-area {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      width: 300px;
+      padding: 10px;
+    }
+
+    button {
+      padding: 10px 16px;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      border: 1px solid #cccccc;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>도서 검색</h1>
+
+  <div class="search-area">
+    <input
+      id="keyword"
+      type="text"
+      placeholder="검색할 제목을 입력하세요"
+    >
+
+    <button id="searchBtn">검색</button>
+
+    <label>
+      <input id="exactToggle" type="checkbox">
+      제목 완전 일치
+    </label>
+  </div>
+
+  <p id="message"></p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>번호</th>
+        <th>제목</th>
+        <th>저자</th>
+        <th>출판 연도</th>
+      </tr>
+    </thead>
+
+    <tbody id="result"></tbody>
+  </table>
+
+  <script>
+    const keywordInput = document.getElementById("keyword");
+    const searchButton = document.getElementById("searchBtn");
+    const exactToggle = document.getElementById("exactToggle");
+    const result = document.getElementById("result");
+    const message = document.getElementById("message");
+
+    async function searchBooks() {
+      const keyword = keywordInput.value.trim();
+
+      const response = await fetch(
+        "/books/search?keyword=" + encodeURIComponent(keyword)
+      );
+
+      let books = await response.json();
+
+      if (exactToggle.checked) {
+        books = books.filter(book => book.title === keyword);
+      }
+
+      result.innerHTML = "";
+
+      if (books.length === 0) {
+        message.textContent = "검색 결과가 없습니다.";
+        return;
+      }
+
+      message.textContent = `${books.length}권을 찾았습니다.`;
+
+      for (const book of books) {
+        const row = document.createElement("tr");
+
+        for (const value of [
+          book.id,
+          book.title,
+          book.author,
+          book.year
+        ]) {
+          const cell = document.createElement("td");
+          cell.textContent = value;
+          row.appendChild(cell);
+        }
+
+        result.appendChild(row);
+      }
+       }
+
+    searchButton.addEventListener("click", searchBooks);
+
+    keywordInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") {
+        searchBooks();
+      }
+    });
+  </script>
+</body>
+</html>

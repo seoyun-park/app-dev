@@ -1,0 +1,51 @@
+
+from fastapi import FastAPI
+
+app = FastAPI()
+
+from fastapi.staticfiles import StaticFiles
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+books = [
+ {"id": 1, "title": "파이썬 입문", "author": "김철수", "year": 2021},
+ {"id": 2, "title": "FastAPI 실전", "author": "이영희", "year": 2023},
+ {"id": 3, "title": "파이썬 웹개발", "author": "김철수", "year": 2022},
+ {"id": 4, "title": "데이터 분석 기초", "author": "박민수", "year": 2020},
+ {"id": 5, "title": "FastAPI로 배우는 백엔드", "author": "이영희", "year": 2024},
+ ]
+
+@app.get("/")
+def read_root():
+    return {"message":"Hello to my world!"}
+
+
+@app.get("/health")
+def health():
+    return {"status": "healthy"}
+
+@app.get("/info")
+def info():
+    return {"name": "도서 관리 API", "version": "0.1.0"}
+
+# 도서의 목록을 제공하는 엔드포인트
+
+@app.get("/books")
+def list_books():
+    return books
+
+
+@app.get("/books/search")
+
+def search_books(keyword: str = ""): #search_books 라는 함수 정의 / keyword는 문자열 형태임
+    if not keyword:
+        return books
+    return [b for b in books if keyword in b["title"]]
+
+
+@app.get("/books/{book_id}")
+def read_book(book_id: int):
+    for book in books:    # books에서 한 개씩 찾는다.
+        if book["id"] == book_id:  # book_id가 == books에 들어있는 아이디와 같다면 (아이디가 다름 -> 무시라서 else가 안 필요하다)
+            return book
+    return {"error": "not found"}
+
