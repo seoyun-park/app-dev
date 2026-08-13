@@ -42,10 +42,23 @@ def search_books(keyword: str = ""): #search_books 라는 함수 정의 / keywor
     return [b for b in books if keyword in b["title"]]
 
 
+@app.get("/books/filter")
+
+def filter_books(keyword: str = "", sort: str = ""):
+    result = books
+    # 리스트 컴프리헨션 - for + if > 리스트
+    result = [b for b in result if b['author'] == keyword]
+
+    if sort == "year":
+        result = sorted(result, key = lambda b: b["year"])
+
+    return result
+
 @app.get("/books/{book_id}")
 def read_book(book_id: int):
     for book in books:    # books에서 한 개씩 찾는다.
         if book["id"] == book_id:  # book_id가 == books에 들어있는 아이디와 같다면 (아이디가 다름 -> 무시라서 else가 안 필요하다)
             return book
     return {"error": "not found"}
+
 
