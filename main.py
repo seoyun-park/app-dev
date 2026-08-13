@@ -54,6 +54,11 @@ def filter_books(keyword: str = "", sort: str = ""):
 
     return result
 
+@app.get("/books/page")
+def page_books(skip: int=0 , limit: int=2):
+    return books[skip: skip+limit]
+
+
 @app.get("/books/{book_id}")
 def read_book(book_id: int):
     for book in books:    # books에서 한 개씩 찾는다.
