@@ -67,3 +67,30 @@ def read_book(book_id: int):
     return {"error": "not found"}
 
 
+from pydantic import BaseModel, Field
+from fastapi import status
+
+class BookCreate(BaseModel):
+    title: str = Field(min_length=1, max_length=10)
+    author: str = Field(min_length=1, max_length=50)
+    year: int = Field(ge=1900,le=2026)
+
+
+class BookResponse(BookCreate):
+    id: int
+
+
+@app.post("/books", response_model = BookResponse, status_code=status.HTTP_201_CREATED)
+def create_book(book: BookCreate):
+    new_id = max([ b["id"] for b in books ], default=0) +1
+    # new_book = {"id":new_id, "title" : book.title, "author" : book.author, "year" : book.year}
+    new_book = {"id":new_id,**book.model_dump()}
+    books.append(new_book)
+
+    return new_book
+
+# 1. 새로운 책 등록
+# 2. 북 목록을 조회
+# 3. 내가 등록한 책을 검색
+
+
