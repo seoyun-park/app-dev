@@ -5,8 +5,8 @@ from fastapi import FastAPI,HTTPException,status
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from external_api import fetch_weather
-from schemas import BookCreate, BookResponse, Publisher, WeatherResponse
+from external_api import fetch_weather, fetch_books
+from schemas import BookCreate, BookResponse, Publisher, WeatherResponse, GoogleBooks
 
 
 app = FastAPI()
@@ -71,7 +71,10 @@ def page_books(skip: int=0 , limit: int=2):
 async def weather(latitude: float= 36.8 , longitude: float = 127.1):
    return await fetch_weather(latitude,longitude)
 
-
+# 엔드포인트
+@app.get("/books/external", response_model= list[GoogleBooks])
+async def search_external_books(keyword: str ,limit: int=5):
+    return await fetch_books(keyword, limit)
 
 
 # 항상 마지막

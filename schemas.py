@@ -33,12 +33,12 @@ class WeatherResponse(BaseModel):
     temperature:float
     time: str
 
-class GoogleBooks(BaseModel)
+class GoogleBooks(BaseModel):
     title: str
     authors: list[str] = Field(default_factory= list)
     published_date: str = ""
 
-    
+
 
 
 
