@@ -1,9 +1,17 @@
+import asyncio
+import time
 
-from fastapi import FastAPI
+from fastapi import FastAPI,HTTPException,status
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
+
+from external_api import fetch_weather
+from schemas import BookCreate, BookResponse, Publisher, WeatherResponse
+
 
 app = FastAPI()
 
-from fastapi.staticfiles import StaticFiles
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 books = [
@@ -16,7 +24,7 @@ books = [
 
 @app.get("/")
 def read_root():
-    return {"message":"Hello to my world!"}
+    return {"message":"FastAPI 첫 서버"}
 
 
 @app.get("/health")
@@ -59,6 +67,14 @@ def page_books(skip: int=0 , limit: int=2):
     return books[skip: skip+limit]
 
 
+@app.get("/weather", response_model= WeatherResponse)
+async def weather(latitude: float= 36.8 , longitude: float = 127.1):
+   return await fetch_weather(latitude,longitude)
+
+
+
+
+# 항상 마지막
 @app.get("/books/{book_id}")
 def read_book(book_id: int):
     for book in books:    # books에서 한 개씩 찾는다.
@@ -67,8 +83,6 @@ def read_book(book_id: int):
     return {"error": "not found"}
 
 
-from pydantic import BaseModel, Field
-from fastapi import status
 
 class BookCreate(BaseModel):
     title: str = Field(min_length=1, max_length=10)
@@ -89,8 +103,16 @@ def create_book(book: BookCreate):
 
     return new_book
 
+
+@app.get("/books", response_model=list[BookResponse])
+def list_books():
+    return books
+
+
 # 1. 새로운 책 등록
 # 2. 북 목록을 조회
 # 3. 내가 등록한 책을 검색
+
+
 
 
