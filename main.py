@@ -41,16 +41,16 @@ books = [
  {"id": 5, "title": "FastAPI로 배우는 백엔드", "author": "이영희", "tags": ["초보자"],"year": 2024},
  ]
 
-@app.get("/", tags=["시스템"])
+@app.get("/", tags=["시스템"], summary="루트 조회")
 def read_root():
     return {"message":"FastAPI 첫 서버"}
 
 
-@app.get("/health", tags=["시스템"])
+@app.get("/health", tags=["시스템"], summary="상태 확인")
 def health():
     return {"status": "ok"}
 
-@app.get("/info",tags=["시스템"])
+@app.get("/info", tags=["시스템"], summary="정보 조회")
 def info():
     return {"name": "도서 관리 API", "version": "0.1.0"}
 
@@ -58,21 +58,19 @@ def info():
 
 # 도서의 목록을 제공하는 엔드포인트
 
-@app.get("/books", response_model= list[BookResponse], tags=["도서"])
+@app.get("/books", response_model= list[BookResponse], tags=["도서"], summary="도서 목록 조회")
 def list_books():
     return books
 
 
-@app.get("/books/search",tags=["도서"])
-
+@app.get("/books/search", tags=["도서"], summary="도서 검색")
 def search_books(keyword: str = ""): #search_books 라는 함수 정의 / keyword는 문자열 형태임
     if not keyword:
         return books
     return [b for b in books if keyword in b["title"]]
 
 
-@app.get("/books/filter", tags=["도서"])
-
+@app.get("/books/filter", tags=["도서"], summary="도서 필터링")
 def filter_books(keyword: str = "", sort: str = ""):
     result = books
     # 리스트 컴프리헨션 - for + if > 리스트
@@ -83,19 +81,16 @@ def filter_books(keyword: str = "", sort: str = ""):
 
     return result
 
-@app.get("/books/page", tags=["도서"])
+@app.get("/books/page", tags=["도서"], summary="도서 페이징 조회")
 def page_books(skip: int=0 , limit: int=2):
     return books[skip: skip+limit]
 
 
-@app.get("/weather", response_model= WeatherResponse, tags=["외부 연동"])
+@app.get("/weather", response_model= WeatherResponse, tags=["외부 연동"], summary="날씨 조회")
 async def weather(latitude: float= 36.8 , longitude: float = 127.1):
    return await fetch_weather(latitude,longitude)
 
-# 엔드포인트
-# @app.get("/books/external", response_model= list[GoogleBooks])
-# async def search_external_books(keyword: str ,limit: int=5):
-#     return await fetch_books(keyword, limit)
+
 
 from external_api import fetch_books, fetch_weather, load_fallback_books
 
@@ -132,7 +127,7 @@ async def search_external_books(keyword: str, limit: int = 5, fallback: bool = F
         raise HTTPException(status_code=502, detail="외부 API에 연결할 수 없습니다")
 
 
-@app.post("/books/from-external", response_model=BookResponse, status_code=201, tags=["도서"],
+@app.post("/books/from-external", response_model=BookResponse, status_code=201, tags=["도서"], summary="외부 도서 등록",
           responses={409: {"description": "이미 등록된 제목입니다"}})
 def create_from_external(book: ExternalBook):
     for b in books:
@@ -157,7 +152,7 @@ def create_from_external(book: ExternalBook):
 
 
 # 항상 마지막
-@app.get("/books/{book_id}",response_model=BookResponse,tags=["도서"],
+@app.get("/books/{book_id}",response_model=BookResponse,tags=["도서"], summary="도서 단건 조회",
     responses={404: {"description": "해당 번호의 도서를 찾을 수 없음"}},)
 
 def read_book(book_id: int):
@@ -195,14 +190,3 @@ def create_book(book: BookCreate):
     books.append(new_book)
 
     return new_book
-
-
-
-
-# 1. 새로운 책 등록
-# 2. 북 목록을 조회
-# 3. 내가 등록한 책을 검색
-
-
-
-
